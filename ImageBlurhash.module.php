@@ -153,6 +153,7 @@ class ImageBlurhash extends InputfieldImage implements Module
 
     public function insertBlurhash(string $blurhash, Page $page, Field $field, Pageimage $image)
     {
+        $image->filedata("blurhash-created", time());
         $image->filedata("blurhash", $blurhash);
         $page->save($field->name, ["quiet" => true, "noHooks" => true]);
         return true;
