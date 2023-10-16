@@ -67,7 +67,7 @@ class ImageBlurhash extends InputfieldImage implements Module
         $images = $page->get($field->name);
         if ($field->createBlurhash && $images->count() > 0 && !$page->hasStatus(Page::statusDeleted)) {
             $image = $images->last(); // get the last added images (should be the currently uploaded images)
-            if (!$this->getRawBlurhash($image)) {
+            if (!$this->getRawBlurhash($image, false)) {
                 if ($blurhash = $this->createBlurhash($image->filename)) {
                     $this->insertBlurhash($blurhash, $page, $field, $image);
                 }
@@ -75,10 +75,12 @@ class ImageBlurhash extends InputfieldImage implements Module
         }
     }
 
-    public function getRawBlurhash(Pageimage $image)
+    public function getRawBlurhash(Pageimage $image, $includeStale = true)
     {
+        $created = (int) $image->filedata("blurhash-created");
+        $current = $includeStale || ($created >= $image->modified);
         $blurhash = $image->filedata("blurhash");
-        if ($blurhash && !empty($blurhash)) {
+        if ($blurhash && !empty($blurhash) && $current) {
             return $blurhash;
         }
 
